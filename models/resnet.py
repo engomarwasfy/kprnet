@@ -163,9 +163,9 @@ class ResNet(nn.Module):
             replace_stride_with_dilation = [False, False, False]
         if len(replace_stride_with_dilation) != 3:
             raise ValueError(
-                "replace_stride_with_dilation should be None "
-                "or a 3-element tuple, got {}".format(replace_stride_with_dilation)
+                f"replace_stride_with_dilation should be None or a 3-element tuple, got {replace_stride_with_dilation}"
             )
+
         self.groups = groups
         self.base_width = width_per_group
         self.conv1 = nn.Conv2d(
@@ -216,8 +216,7 @@ class ResNet(nn.Module):
                 norm_layer(planes * block.expansion),
             )
 
-        layers = []
-        layers.append(
+        layers = [
             block(
                 self.inplanes,
                 planes,
@@ -228,19 +227,20 @@ class ResNet(nn.Module):
                 previous_dilation,
                 norm_layer,
             )
-        )
+        ]
+
         self.inplanes = planes * block.expansion
-        for _ in range(1, blocks):
-            layers.append(
-                block(
-                    self.inplanes,
-                    planes,
-                    groups=self.groups,
-                    base_width=self.base_width,
-                    dilation=self.dilation,
-                    norm_layer=norm_layer,
-                )
+        layers.extend(
+            block(
+                self.inplanes,
+                planes,
+                groups=self.groups,
+                base_width=self.base_width,
+                dilation=self.dilation,
+                norm_layer=norm_layer,
             )
+            for _ in range(1, blocks)
+        )
 
         return nn.Sequential(*layers)
 
@@ -262,11 +262,10 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):
-    model = ResNet(block, layers, **kwargs)
     # if pretrained:
     #     state_dict = load_state_dict_from_url(model_urls[arch], progress=progress)
     #     model.load_state_dict(state_dict)
-    return model
+    return ResNet(block, layers, **kwargs)
 
 
 def resnet18(pretrained=False, progress=True, **kwargs):
