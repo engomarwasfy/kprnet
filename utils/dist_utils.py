@@ -25,8 +25,7 @@ def _serialize_to_tensor(data):
             )
         )
     storage = torch.ByteStorage.from_buffer(buffer)
-    tensor = torch.ByteTensor(storage).to(device=device)
-    return tensor
+    return torch.ByteTensor(storage).to(device=device)
 
 
 def _pad_to_largest_tensor(tensor):
